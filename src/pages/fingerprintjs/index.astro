@@ -1,0 +1,25 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout>
+  <div id="fingerprintjs" class="p-12">
+    <p id="visitor-id-fingerprint" class="font-bold text-xl"></p>
+  </div>
+</Layout>
+
+<script is:inline>
+  var fpPromise = FingerprintJS.load();
+
+  fpPromise
+    .then((fp) => fp.get())
+    .then((result) => {
+      console.log("visitor id: ", result.visitorId);
+      console.log("request id:", result.requestId);
+
+      const visitorIdElement = document.getElementById(
+        "visitor-id-fingerprint"
+      );
+      visitorIdElement.textContent = `Visitor ID of Fingerprintjs: ${result.visitorId}`;
+    });
+</script>

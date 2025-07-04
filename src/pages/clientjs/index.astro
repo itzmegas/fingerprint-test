@@ -1,0 +1,43 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout>
+  <div id="clientjs" class="p-10">
+    <h2 id="visitor-id-clientjs" class="font-bold text-xl"></h2>
+  </div>
+</Layout>
+
+<script is:inline>
+  var client = new ClientJS();
+
+  if (client.isMobile()) {
+    // Check For Mobile Device
+
+    if (client.isMobileAndroid()) {
+      // Check For Android
+      console.log("We Got Us Some Android!");
+    } else if (client.isMobileIOS()) {
+      // Check For iOS
+      console.log("We Got Us Some Apple iOS!");
+    } else {
+      console.log("Unknown Mobile Device...");
+    }
+  } else {
+    if (client.isJava()) {
+      // Check If Java Is Installed
+      console.log("Java " + client.getJavaVersion()); // Get Java Version
+    } else {
+      console.log("No Java Installed...");
+    }
+  }
+
+  var fingerprint = client.getFingerprint(); // Calculate Device/Browser Fingerprint
+
+  console.log("clientjs fingerprint", fingerprint);
+
+  const visitorIdElementClientjs = document.getElementById(
+    "visitor-id-clientjs"
+  );
+  visitorIdElementClientjs.textContent = `Visitor ID of Clientjs: ${fingerprint}`;
+</script>

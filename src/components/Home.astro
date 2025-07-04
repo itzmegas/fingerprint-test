@@ -1,0 +1,21 @@
+<div id="container">
+  <main class="flex flex-col items-center justify-center p-12">
+    <div id="hero" class="w-full">
+      <h2
+        id="fingerprint"
+        class="text-xl font-bold overflow-hidden text-ellipsis"
+      >
+      </h2>
+    </div>
+  </main>
+</div>
+
+<script is:inline src="/lib/fingerprint.js"></script>
+<script is:inline>
+  document.addEventListener("buildFingerPrint", function (ev) {
+    console.log(ev.detail.fingerprint);
+
+    const fingerprintElement = document.getElementById("fingerprint");
+    fingerprintElement.textContent = `Fingerprint: ${ev.detail.fingerprint}`;
+  });
+</script>
