@@ -1,11 +1,16 @@
 <div id="container">
   <main class="flex flex-col items-center justify-center p-12">
-    <div id="hero" class="w-full">
+    <div id="hero" class="w-full flex flex-col gap-6">
       <h2
         id="fingerprint"
         class="text-xl font-bold overflow-hidden text-ellipsis"
       >
       </h2>
+
+      <pre
+        id="fingerprint-decode"
+        class="p-4 rounded-lg border-2 border-gray-950 bg-gray-200 overflow-hidden">
+      </pre>
     </div>
   </main>
 </div>
@@ -13,9 +18,29 @@
 <script is:inline src="/lib/fingerprint.js"></script>
 <script is:inline>
   document.addEventListener("buildFingerPrint", function (ev) {
-    console.log(ev.detail.fingerprint);
+    const fingerprint = ev.detail.fingerprint;
+    console.log(fingerprint);
 
     const fingerprintElement = document.getElementById("fingerprint");
-    fingerprintElement.textContent = `Fingerprint: ${ev.detail.fingerprint}`;
+    const fingerprintDecodeElement =
+      document.getElementById("fingerprint-decode");
+
+    fingerprintElement.textContent = `Fingerprint: ${fingerprint}`;
+
+    function decodeBase64Payload(token) {
+      const base64 = token.replace(/-/g, "+").replace(/_/g, "/");
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split("")
+          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+          .join("")
+      );
+
+      return JSON.parse(jsonPayload);
+    }
+    const decoded = decodeBase64Payload(fingerprint);
+    console.log(decoded);
+
+    fingerprintDecodeElement.textContent = JSON.stringify(decoded, null, 2);
   });
 </script>

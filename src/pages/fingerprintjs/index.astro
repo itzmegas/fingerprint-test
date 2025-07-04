@@ -3,23 +3,38 @@ import Layout from "../../layouts/Layout.astro";
 ---
 
 <Layout>
-  <div id="fingerprintjs" class="p-12">
+  <div id="fingerprintjs" class="flex flex-col gap-6 p-12">
     <p id="visitor-id-fingerprint" class="font-bold text-xl"></p>
+
+    <pre
+      id="fingerprint-code"
+      class="p-4 rounded-lg border-2 border-gray-950 bg-gray-200 overflow-hidden">
+    </pre>
+    <pre
+      id="api-response"
+      class="p-4 rounded-lg border-2 border-blue-950 bg-blue-100 overflow-hidden">
+    </pre>
   </div>
 </Layout>
 
 <script is:inline>
-  var fpPromise = FingerprintJS.load();
+  window.addEventListener("DOMContentLoaded", async () => {
+    FingerprintJS.load()
+      .then((fp) => fp.get({ extendedResult: true }))
+      .then((result) => {
+        const visitorId = result.visitorId;
+        const requestId = result.requestId;
+        document.getElementById("visitor-id-fingerprint").textContent =
+          `Fingerprint id (fingerprintjs): ${visitorId}`;
+        document.getElementById("fingerprint-code").textContent =
+          JSON.stringify(result, null, 2);
 
-  fpPromise
-    .then((fp) => fp.get())
-    .then((result) => {
-      console.log("visitor id: ", result.visitorId);
-      console.log("request id:", result.requestId);
-
-      const visitorIdElement = document.getElementById(
-        "visitor-id-fingerprint"
-      );
-      visitorIdElement.textContent = `Visitor ID of Fingerprintjs: ${result.visitorId}`;
-    });
+        fetch(`/api/${requestId}`)
+          .then((res) => res.json())
+          .then((data) => {
+            document.getElementById("api-response").textContent =
+              JSON.stringify(data, null, 2);
+          });
+      });
+  });
 </script>
