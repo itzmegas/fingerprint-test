@@ -3,8 +3,13 @@ import Layout from "../../layouts/Layout.astro";
 ---
 
 <Layout>
-  <div id="clientjs" class="p-10">
+  <div id="clientjs" class="flex flex-col gap-6 p-12">
     <h2 id="visitor-id-clientjs" class="font-bold text-xl"></h2>
+
+    <pre
+      id="fingerprint-code"
+      class="p-4 rounded-lg border-2 border-gray-950 bg-gray-200 overflow-hidden">
+    </pre>
   </div>
 </Layout>
 
@@ -15,33 +20,76 @@ import Layout from "../../layouts/Layout.astro";
 <script is:inline>
   const client = new ClientJS();
 
-  if (client.isMobile()) {
-    // Check For Mobile Device
-
-    if (client.isMobileAndroid()) {
-      // Check For Android
-      console.log("We Got Us Some Android!");
-    } else if (client.isMobileIOS()) {
-      // Check For iOS
-      console.log("We Got Us Some Apple iOS!");
-    } else {
-      console.log("Unknown Mobile Device...");
-    }
-  } else {
-    if (client.isJava()) {
-      // Check If Java Is Installed
-      console.log("Java " + client.getJavaVersion()); // Get Java Version
-    } else {
-      console.log("No Java Installed...");
-    }
-  }
-
-  var fingerprint = client.getFingerprint(); // Calculate Device/Browser Fingerprint
-
+  const fingerprint = client.getFingerprint();
   console.log("clientjs fingerprint", fingerprint);
-
   const visitorIdElementClientjs = document.getElementById(
     "visitor-id-clientjs"
   );
   visitorIdElementClientjs.textContent = `Visitor ID of Clientjs: ${fingerprint}`;
+
+  let device = "";
+  if (client.isMobile()) {
+    if (client.isMobileAndroid()) {
+      device = "Android";
+    } else if (client.isMobileIOS()) {
+      device = "iOS";
+    } else {
+      device = "Unknow mobile device";
+    }
+  } else {
+    if (client.isJava()) {
+      device = "Java" + client.getJavaVersion();
+    } else {
+      device = "Other";
+    }
+  }
+
+  /*   const isChrome = client.isChrome();
+  const isIE = client.isIE();
+  const isFirefox = client.isFirefox();
+  const isSafari = client.isSafari();
+  const isOpera = client.isOpera();
+  const isMobileSafari = client.isMobileSafari(); */
+
+  const ua = client.getBrowserData().ua;
+  const canvasPrint = client.getCanvasPrint();
+
+  const extendFingerprint = {
+    fingerprint,
+    customFingerprint: client.getCustomFingerprint(ua, canvasPrint),
+    device,
+    userAgent: client.getUserAgent(),
+    softwareVersion: client.getSoftwareVersion(),
+    browser: client.getBrowser(),
+    browserVersion: client.getBrowserVersion(),
+    browserMajorVersion: client.getBrowserMajorVersion(),
+    engine: client.getEngine(),
+    engineVersion: client.getEngineVersion(),
+    OS: client.getOS(),
+    osVersion: client.getOSVersion(),
+    deviceVendor: client.getDeviceVendor(),
+    CPU: client.getCPU(),
+    isMobile: client.isMobile(),
+    screenPrint: client.getScreenPrint(),
+    colorDepth: client.getColorDepth(),
+    currentResolution: client.getCurrentResolution(),
+    availableResolution: client.getAvailableResolution(),
+    deviceXDPI: client.getDeviceXDPI(),
+    deviceYDPI: client.getDeviceYDPI(),
+    plugins: client.getPlugins(),
+    fonts: client.getFonts(),
+    isLocalStorage: client.isLocalStorage(),
+    isSessionStorage: client.isSessionStorage(),
+    isCookie: client.isCookie(),
+    timeZone: client.getTimeZone(),
+    language: client.getLanguage(),
+    isCanvas: client.isCanvas(),
+    canvasPrint: client.getCanvasPrint(),
+  };
+
+  document.getElementById("fingerprint-code").textContent = JSON.stringify(
+    extendFingerprint,
+    null,
+    2
+  );
 </script>
