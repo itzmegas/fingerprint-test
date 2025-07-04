@@ -8,8 +8,12 @@ import Layout from "../../layouts/Layout.astro";
   </div>
 </Layout>
 
+<script
+  is:inline
+  src="https://cdn.jsdelivr.net/npm/clientjs@0.1.11/dist/client.min.js"
+></script>
 <script is:inline>
-  var client = new ClientJS();
+  const client = new ClientJS();
 
   if (client.isMobile()) {
     // Check For Mobile Device
