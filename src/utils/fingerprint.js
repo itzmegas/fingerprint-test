@@ -215,7 +215,7 @@ class Fingerprint {
         timezoneOffset: result.components.timezone.offset,
         locale: result.components.timezone.locale,
       },
-      geoLocation: result.components.geoLocation,
+      //geoLocation: result.components.geoLocation,
       // Capacidades
       capabilities: {
         localStorage: result.components.misc.localStorage,
@@ -407,7 +407,7 @@ class Fingerprint {
       },
 
       // Información de la locación
-      geoLocation: await this.getGeolocation(),
+      //  geoLocation: await this.getGeolocation(),
       // Información de hardware
       hardware: {
         concurrency: navigator.hardwareConcurrency || 1,
