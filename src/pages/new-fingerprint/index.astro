@@ -1,0 +1,16 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout>
+  <div id="clientjs" class="flex flex-col gap-6 p-12">
+    <h2 id="fingerprint-id" class="font-bold text-xl"></h2>
+
+    <pre
+      id="fingerprint-code"
+      class="p-4 rounded-lg border-2 border-gray-950 bg-gray-200 overflow-hidden">
+    </pre>
+  </div>
+</Layout>
+
+<script src="../../utils/fingerprint.js"></script>

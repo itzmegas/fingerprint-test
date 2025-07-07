@@ -6,7 +6,7 @@ const activePage = Astro.url.pathname;
   <h1 class="font-bold">Test Fingerprint</h1>
   <nav class="flex gap-6">
     <a href="/" class={activePage === "/" ? "font-bold text-amber-300" : ""}
-      ><span>Nuestro fingerprint</span></a
+      ><span>Nuestro</span></a
     >
     <a
       href="/fingerprintjs"
@@ -17,6 +17,12 @@ const activePage = Astro.url.pathname;
       href="/clientjs"
       class={activePage === "/clientjs" ? "font-bold text-amber-300" : ""}
       ><span>ClientJS</span></a
+    >
+    <a
+      href="/new-fingerprint"
+      class={activePage === "/new-fingerprint"
+        ? "font-bold text-amber-300"
+        : ""}><span>Nuevo Fingerprint</span></a
     >
   </nav>
 </header>
