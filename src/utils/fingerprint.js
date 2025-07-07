@@ -17,14 +17,14 @@ class Fingerprint {
     };
 
     this.cache = null;
-    this.componentsCache = null; // Cache para los componentes
-    this.cacheKey = "modern_fingerprint_cache";
-    this.componentsCacheKey = "modern_fingerprint_components_cache";
+    this.componentsCache = null;
+    this.cacheKey = "fingerprint_cache";
+    this.componentsCacheKey = "fingerprint_components_cache";
     this.cacheExpiry = 24 * 60 * 60 * 1000; // 24 horas
   }
 
   /**
-   * Solo genera el fingerprint (hash)
+   * Genera el fingerprint completo y retorna solo el hash
    * @returns {Promise<string>}
    */
   async generate() {
@@ -215,7 +215,7 @@ class Fingerprint {
         timezoneOffset: result.components.timezone.offset,
         locale: result.components.timezone.locale,
       },
-
+      geoLocation: result.components.geoLocation,
       // Capacidades
       capabilities: {
         localStorage: result.components.misc.localStorage,
@@ -329,6 +329,42 @@ class Fingerprint {
     }
   }
 
+  async getIPs() {
+    return new Promise((resolve) => {
+      let ip = "";
+      const pc = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      });
+
+      pc.onicecandidate = (event) => {
+        if (event.candidate.address) {
+          const address = event.candidate.address;
+          ip = address;
+        }
+      };
+
+      pc.createDataChannel("");
+      pc.createOffer().then((offer) => pc.setLocalDescription(offer));
+
+      setTimeout(() => {
+        resolve(ip);
+      }, 1000);
+    });
+  }
+
+  async getGeolocation() {
+    try {
+      const ip = await this.getIPs();
+      const response = await fetch(`http://ip-api.com/json/${ip}`);
+
+      const geolocation = await response.json();
+
+      return { ...geolocation, ip };
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   /**
    * Recopila todos los componentes del fingerprint
    * @returns {Promise<Object>} Objeto con todos los componentes
@@ -370,6 +406,8 @@ class Fingerprint {
         locale: Intl.DateTimeFormat().resolvedOptions().locale,
       },
 
+      // Información de la locación
+      geoLocation: await this.getGeolocation(),
       // Información de hardware
       hardware: {
         concurrency: navigator.hardwareConcurrency || 1,
