@@ -1,7 +1,7 @@
 /**
- * Librería de Fingerprinting
- * Versión: 2.0.0
- * Fecha: 2025
+ * Fingerprint Libriry
+ * Version: 2.0.0
+ * Date: 2025
  */
 
 class Fingerprint {
@@ -366,6 +366,56 @@ class Fingerprint {
   }
 
   /**
+   * Genera fingerprint de audio usando Web Audio API moderna
+   * @returns {Promise<string>} Audio fingerprint
+   */
+  async getAudioFingerprint() {
+    return new Promise(async (resolve) => {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return resolve(null);
+
+        const audioContext = new AudioContext();
+        const oscillator = audioContext.createOscillator();
+        const analyser = audioContext.createAnalyser();
+        const gainNode = audioContext.createGain();
+
+        // Conectar nodos
+        oscillator.type = "triangle";
+        oscillator.frequency.value = 1000;
+        gainNode.gain.value = 0; // Silenciar salida
+
+        oscillator.connect(analyser);
+        analyser.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        // Recoger datos del buffer
+        oscillator.start(0);
+
+        // Esperar un corto tiempo para llenar el buffer
+        setTimeout(() => {
+          try {
+            const dataArray = new Float32Array(analyser.fftSize);
+            analyser.getFloatTimeDomainData(dataArray);
+
+            oscillator.stop();
+            audioContext.close();
+
+            const audioData = Array.from(dataArray).slice(0, 100);
+            const fingerprint = this.createSimpleHash(audioData.join(""));
+            resolve(fingerprint);
+          } catch (e) {
+            resolve(null);
+          }
+        }, 200);
+      } catch (error) {
+        console.error("Error en audio fingerprint:", error);
+        resolve(null);
+      }
+    });
+  }
+
+  /**
    * Recopila todos los componentes del fingerprint
    * @returns {Promise<Object>} Objeto con todos los componentes
    */
@@ -407,7 +457,7 @@ class Fingerprint {
       },
 
       // Información de la locación
-      //  geoLocation: await this.getGeolocation(),
+      // geoLocation: await this.getGeolocation(),
       // Información de hardware
       hardware: {
         concurrency: navigator.hardwareConcurrency || 1,
@@ -427,7 +477,8 @@ class Fingerprint {
       webgl: this.options.includeWebGLFingerprint
         ? this.getWebGLFingerprint()
         : null,
-
+      // Audio fingerprint
+      audio: this.getAudioFingerprint(),
       // Fonts disponibles
       fonts: this.options.includeFonts ? await this.getAvailableFonts() : null,
 
@@ -961,33 +1012,3 @@ document.getElementById("fingerprint-code").textContent = JSON.stringify(
   null,
   2
 );
-
-/**
- * EJEMPLOS DE USO:
- *
- * // Uso básico
- * const fingerprint = await fingerprintManager.getFingerprint();
- * console.log('Fingerprint:', fingerprint);
- *
- * // Uso con opciones personalizadas
- * fingerprintManager.init({
- *     includeCanvasFingerprint: true,
- *     includeWebGLFingerprint: true,
- *     includeAudioFingerprint: false,
- *     cacheResult: true
- * });
- *
- * // Obtener estadísticas
- * const stats = await fingerprintManager.getStats();
- * console.log('Estadísticas:', stats);
- *
- * // Regenerar fingerprint
- * const newFingerprint = await fingerprintManager.regenerate();
- *
- * // Uso directo de la clase
- * const fp = new ModernFingerprint({
- *     includeCanvasFingerprint: true,
- *     cacheResult: false
- * });
- * const result = await fp.generate();
- */
